@@ -1,0 +1,18 @@
+# Build output
+/target/
+**/*.rs.bk
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
