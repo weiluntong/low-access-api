@@ -16,3 +16,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Configuration (keep .example files)
+config.toml

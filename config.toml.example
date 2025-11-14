@@ -1,0 +1,21 @@
+# LoW Access Backend Configuration
+# Copy this file to config.toml and customize for your deployment
+
+[server]
+# Server bind address (IP:PORT)
+bind_address = "0.0.0.0:3000"
+
+[google]
+# REQUIRED: Google OAuth Client ID - must match frontend configuration
+client_id = "YOUR_GOOGLE_CLIENT_ID_HERE"
+
+[tailscale]
+# REQUIRED: Path to file containing Tailscale OAuth client secret
+oauth_secret_path = "/run/secrets/tailscale_oauth_secret"
+
+# Tailscale API base URL
+api_url = "https://api.tailscale.com"
+
+[database]
+# SQLite database file path
+path = "sso.db"

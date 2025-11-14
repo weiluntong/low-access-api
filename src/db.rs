@@ -1,17 +1,19 @@
 use sqlx::{SqlitePool, migrate::MigrateDatabase, Sqlite};
 use crate::models::User;
+use crate::config::get_config;
 use anyhow::Result;
 
 pub async fn init_db() -> Result<SqlitePool> {
-    let database_url = "sqlite:./sso.db";
-    
+    let db_path = &get_config().database.path;
+    let database_url = format!("sqlite:{}", db_path);
+
     // Create database if it doesn't exist
-    if !Sqlite::database_exists(database_url).await.unwrap_or(false) {
-        Sqlite::create_database(database_url).await?;
+    if !Sqlite::database_exists(&database_url).await.unwrap_or(false) {
+        Sqlite::create_database(&database_url).await?;
     }
 
     // Connect to database
-    let pool = SqlitePool::connect(database_url).await?;
+    let pool = SqlitePool::connect(&database_url).await?;
 
     // Run migrations
     create_tables(&pool).await?;

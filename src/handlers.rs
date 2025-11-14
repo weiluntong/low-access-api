@@ -29,7 +29,7 @@ pub struct GenerateTokenResponse {
 }
 
 pub async fn health_check() -> &'static str {
-    "LOW Access API is running!"
+    "LoW Access API is running!"
 }
 
 pub async fn validate_token(

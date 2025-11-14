@@ -37,9 +37,9 @@ async fn main() -> anyhow::Result<()> {
 
     // Run the server
     let config = get_config();
-    let addr: SocketAddr = config.bind_address.parse()
-        .map_err(|_| anyhow::anyhow!("Invalid bind address: {}", config.bind_address))?;
-    info!("Server starting on {} (configured via BIND_ADDRESS)", addr);
+    let addr: SocketAddr = config.server.bind_address.parse()
+        .map_err(|_| anyhow::anyhow!("Invalid bind address: {}", config.server.bind_address))?;
+    info!("Server starting on {}", addr);
     
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
