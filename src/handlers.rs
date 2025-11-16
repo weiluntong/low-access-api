@@ -3,30 +3,10 @@ use axum::{
     http::{StatusCode, HeaderMap},
     response::Json,
 };
-use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
-use tracing::{info, warn};
-use crate::models::User;
-use crate::{google, db};
-
-#[derive(Deserialize)]
-pub struct GenerateTokenRequest {
-    pub id_token: String,
-}
-
-#[derive(Serialize)]
-pub struct ValidateTokenResponse {
-    pub success: bool,
-    pub user: Option<User>,
-    pub message: String,
-}
-
-#[derive(Serialize)]
-pub struct GenerateTokenResponse {
-    pub success: bool,
-    pub tailscale_token: Option<String>,
-    pub message: String,
-}
+use tracing::{info, warn, error};
+use crate::models::{User, GenerateTokenRequest, ValidateTokenResponse, GenerateTokenResponse};
+use crate::{google, db, tailscale};
 
 pub async fn health_check() -> &'static str {
     "LoW Access API is running!"
@@ -193,16 +173,22 @@ pub async fn generate_tailscale_token(
         }));
     }
 
-    // Generate a mock Tailscale token (replace with real Tailscale API integration)
-    let random_value: u32 = rand::random();
-    let fake_token = format!("tskey-{}{:08x}",
-        chrono::Utc::now().timestamp(),
-        random_value
-    );
-
-    Ok(Json(GenerateTokenResponse {
-        success: true,
-        tailscale_token: Some(fake_token),
-        message: "Tailscale token generated successfully".to_string(),
-    }))
+    // Generate Tailscale auth key
+    match tailscale::generate_auth_key(&authorized_user.email).await {
+        Ok(auth_key) => {
+            Ok(Json(GenerateTokenResponse {
+                success: true,
+                tailscale_token: Some(auth_key),
+                message: "Tailscale auth key generated successfully".to_string(),
+            }))
+        }
+        Err(e) => {
+            error!("Failed to generate Tailscale auth key for {}: {}", authorized_user.email, e);
+            Ok(Json(GenerateTokenResponse {
+                success: false,
+                tailscale_token: None,
+                message: "Unable to generate network access token. Please try again later or contact support if this persists.".to_string(),
+            }))
+        }
+    }
 }

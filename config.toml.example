@@ -5,16 +5,29 @@
 # Server bind address (IP:PORT)
 bind_address = "0.0.0.0:3000"
 
+# Log level (trace, debug, info, warn, error)
+# Default: info (recommended for production)
+# Use debug or trace for development
+log_level = "info"
+
 [google]
 # REQUIRED: Google OAuth Client ID - must match frontend configuration
 client_id = "YOUR_GOOGLE_CLIENT_ID_HERE"
 
 [tailscale]
 # REQUIRED: Path to file containing Tailscale OAuth client secret
+# The secret should be stored securely in a file, not in environment variables
+# Create an OAuth client in Tailscale admin console with 'auth_keys' scope
 oauth_secret_path = "/run/secrets/tailscale_oauth_secret"
 
-# Tailscale API base URL
-api_url = "https://api.tailscale.com"
+# Tailscale API base URL (including version)
+# Change this if using Headscale or if Tailscale releases a new API version
+api_url = "https://api.tailscale.com/api/v2"
+
+# REQUIRED: Tags to apply to generated auth keys
+# Must match the tag(s) your OAuth client is authorized to use
+# Example: auth_key_tags = ["tag:sso", "tag:users"]
+auth_key_tags = ["tag:low-access"]
 
 [database]
 # SQLite database file path

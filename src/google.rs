@@ -1,25 +1,11 @@
 use reqwest;
 use jsonwebtoken::{decode, decode_header, DecodingKey, Validation, Algorithm};
-use serde::Deserialize;
 use anyhow::{Result, anyhow};
 use chrono::{Utc, DateTime};
 use std::sync::{Arc, Mutex};
 use std::sync::OnceLock;
-use crate::models::{GoogleIdTokenClaims, User};
+use crate::models::{GoogleIdTokenClaims, GoogleJwks, GoogleJwk, User};
 use crate::config::get_config;
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct GoogleJwks {
-    pub keys: Vec<GoogleJwk>,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct GoogleJwk {
-    pub kid: String,      // Key ID
-    pub n: String,        // RSA modulus (base64url)
-    pub e: String,        // RSA exponent (base64url)
-    // Other fields like kty, use, alg are ignored by serde
-}
 
 // Thread-safe cache for Google's public keys
 static GOOGLE_KEYS_CACHE: OnceLock<Arc<Mutex<Option<(DateTime<Utc>, GoogleJwks)>>>> = OnceLock::new();

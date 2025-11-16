@@ -10,18 +10,3 @@ pub struct User {
     pub created_at: DateTime<Utc>,
     pub last_login: DateTime<Utc>,
 }
-
-#[derive(Debug, Deserialize)]
-pub struct GoogleIdTokenClaims {
-    #[allow(dead_code)]
-    pub iss: String,
-    #[allow(dead_code)]
-    pub aud: String,
-    pub sub: String,
-    pub email: String,
-    pub name: Option<String>,
-    #[allow(dead_code)]
-    pub exp: i64,
-    #[allow(dead_code)]
-    pub iat: i64,
-}

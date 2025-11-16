@@ -11,15 +11,32 @@ mod config;
 mod db;
 mod models;
 mod handlers;
+mod tailscale;
 
 use config::get_config;
 use handlers::{health_check, validate_token, generate_tailscale_token};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // Initialize tracing
+    // Load config first to get log level
+    let config = get_config();
+
+    // Parse log level from config
+    let log_level = match config.server.log_level.to_lowercase().as_str() {
+        "trace" => LevelFilter::TRACE,
+        "debug" => LevelFilter::DEBUG,
+        "info" => LevelFilter::INFO,
+        "warn" => LevelFilter::WARN,
+        "error" => LevelFilter::ERROR,
+        _ => {
+            eprintln!("Invalid log level '{}', defaulting to INFO", config.server.log_level);
+            LevelFilter::INFO
+        }
+    };
+
+    // Initialize tracing with configured log level
     tracing_subscriber::fmt()
-        .with_max_level(LevelFilter::INFO)
+        .with_max_level(log_level)
         .init();
 
     // Initialize database
@@ -36,7 +53,6 @@ async fn main() -> anyhow::Result<()> {
         .with_state(db);
 
     // Run the server
-    let config = get_config();
     let addr: SocketAddr = config.server.bind_address.parse()
         .map_err(|_| anyhow::anyhow!("Invalid bind address: {}", config.server.bind_address))?;
     info!("Server starting on {}", addr);
